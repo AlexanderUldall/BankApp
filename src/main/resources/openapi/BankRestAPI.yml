@@ -1,0 +1,473 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v1
+servers:
+  - url: http://localhost:8080/api
+paths:
+  "/customer/{customerId}/bank-account/{bankAccountId}/withdraw":
+    post:
+      tags:
+        - bank-account-controller
+      summary: Withdraw Money
+      operationId: withdraw
+      parameters:
+        - name: bankAccountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TransactionRequest"
+        required: true
+      responses:
+        '204':
+          description: Withdraw performed successfully
+        '400':
+          description: Bad Request
+        '404':
+          description: Bank account not found
+          content:
+            "*/*":
+              schema:
+                type: string
+  "/customer/{customerId}/bank-account/{bankAccountId}/deposit":
+    post:
+      tags:
+        - bank-account-controller
+      summary: Deposit Money
+      operationId: deposit
+      parameters:
+        - name: bankAccountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TransactionRequest"
+        required: true
+      responses:
+        '204':
+          description: Deposit performed successfully
+        '400':
+          description: Bad Request
+        '404':
+          description: Bank account not found
+          content:
+            "*/*":
+              schema:
+                type: string
+  /customer/{customerId}:
+    get:
+      tags:
+        - bank-account-controller
+      summary: get customer.
+      operationId: getCustomer
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requested customer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Customer"
+        '400':
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                type: string
+        '404':
+          description: Customer not found
+          content:
+            "*/*":
+              schema:
+                type: string
+  /customer/ssn/{socialSecurityNumber}:
+    get:
+      tags:
+        - bank-account-controller
+      summary: get customer.
+      operationId: getCustomerFromSSN
+      parameters:
+        - name: socialSecurityNumber
+          in: path
+          required: true
+          schema:
+            pattern: "[0-9]{6}-[0-9]{4}"
+            type: string
+      responses:
+        '200':
+          description: Requested customer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Customer"
+        '400':
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                type: string
+        '404':
+          description: Customer not found
+          content:
+            "*/*":
+              schema:
+                type: string
+  /customer:
+    post:
+      tags:
+        - bank-account-controller
+      summary: Create a customer.
+      operationId: createCustomer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateCustomerRequest"
+        required: true
+      responses:
+        '200':
+          description: Created customer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Customer"
+        '400':
+          description: Invalid social security number
+          content:
+            "*/*":
+              schema:
+                type: string
+  /customer/{customerId}/bank-account/{bankAccountId}:
+    get:
+      tags:
+        - bank-account-controller
+      summary: get Bank account.
+      operationId: getBankAccount
+      parameters:
+        - name: bankAccountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Requested bank account
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/BankAccount"
+        '400':
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                type: string
+        '404':
+          description: Bank account not found
+          content:
+            "*/*":
+              schema:
+                type: string
+  /customer/{customerId}/bank-accounts:
+    get:
+      tags:
+        - bank-account-controller
+      summary: get all Bank accounts.
+      operationId: getAllBankAccounts
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Get all bank accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/BankAccount"
+        '400':
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                type: string
+  /customer/{customerId}/bank-account:
+    post:
+      tags:
+        - bank-account-controller
+      summary: Create a bank account.
+      operationId: createBankAccount
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateBankAccountRequest"
+        required: true
+      responses:
+        '200':
+          description: The created bank account ID
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CreateBankAccountResponse"
+        '400':
+          description: Invalid currency or account type given
+          content:
+            "*/*":
+              schema:
+                type: string
+  "/customer/{customerId}/bank-account/{bankAccountId}/transactions/latest":
+    get:
+      tags:
+        - bank-account-controller
+      summary: Get 10 latest transactions for specified account
+      operationId: getLatestTransactions
+      parameters:
+        - name: bankAccountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Get 10 latest transactions for specified account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Transaction"
+        '400':
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                type: string
+        '404':
+          description: Account not found
+          content:
+            "*/*":
+              schema:
+                type: string
+  "/customer/{customerId}/bank-account/{bankAccountId}/transactions":
+    get:
+      tags:
+        - bank-account-controller
+      summary: Get all transactions for specified account
+      operationId: getAllTransactions
+      parameters:
+        - name: bankAccountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Get all transactions for specified account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Transaction"
+        '400':
+          description: Bad Request
+          content:
+            "*/*":
+              schema:
+                type: string
+        '404':
+          description: Account not found
+          content:
+            "*/*":
+              schema:
+                type: string
+components:
+  schemas:
+    AccountType:
+      type: string
+      enum:
+        - SAV
+        - CHE
+    CurrencyCode:
+      type: string
+      enum:
+        - AED
+        - AUD
+        - BGN
+        - CAD
+        - CHF
+        - CNH
+        - CZK
+        - DKK
+        - EUR
+        - GBP
+        - HKD
+        - HRK
+        - HUF
+        - ILS
+        - JPY
+        - MXN
+        - NOK
+        - NZD
+        - PLN
+        - RON
+        - RUB
+        - RSD
+        - SAR
+        - SEK
+        - SGD
+        - THB
+        - TRY
+        - USD
+        - ZAR
+    TransactionRequest:
+      required:
+        - amount
+        - currencyCode
+      type: object
+      properties:
+        currencyCode:
+          "$ref": "#/components/schemas/CurrencyCode"
+        amount:
+          type: number
+          minimum: 0.01
+          example: 100.25
+    Customer:
+      type: object
+      properties:
+        customerId:
+          type: integer
+          format: int64
+          example: 1
+        socialSecurityNumber:
+          type: string
+          example: "123456-1234"
+        name:
+          type: string
+          example: "John Bank"
+    Transaction:
+      type: object
+      properties:
+        transactionId:
+          type: integer
+          format: int64
+          example: 1
+        currencyCode:
+          "$ref": "#/components/schemas/CurrencyCode"
+        creationDateTime:
+          type: string
+          format: localDateTime
+        amount:
+          type: number
+          example: 25.75
+        bankAccountID:
+          type: integer
+          format: int64
+          example: 1
+    CreateCustomerRequest:
+      required:
+        - name
+        - socialSecurityNumber
+      type: object
+      properties:
+        socialSecurityNumber:
+          type: string
+          example: 123456-1234
+          pattern: "[0-9]{6}-[0-9]{4}"
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: John Bank
+    CreateBankAccountResponse:
+      type: object
+      properties:
+        bankAccountID:
+          type: integer
+          format: int64
+          example: 1
+    CreateBankAccountRequest:
+      required:
+        - accountType
+        - currencyCode
+      type: object
+      properties:
+        currencyCode:
+          "$ref": "#/components/schemas/CurrencyCode"
+        accountType:
+          "$ref": "#/components/schemas/AccountType"
+    BankAccount:
+      type: object
+      properties:
+        bankAccountId:
+          type: integer
+          format: int64
+          example: 1
+        balance:
+          type: number
+          example: 100.25
+        account_TYPE:
+          "$ref": "#/components/schemas/AccountType"
+        currency_CODE:
+          "$ref": "#/components/schemas/CurrencyCode"
